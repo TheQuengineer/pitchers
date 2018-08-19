@@ -61,5 +61,16 @@ def all():
     return Response(xml, mimetype='text/xml')
 
 
+@app.route('/api/v1.0/salaries', methods=['GET'])
+def salaries():
+    query = "SELECT DISTINCT(Name), 2018_salary FROM mlb_stats_2018 WHERE 2018_salary > 0 ORDER BY 2018_salary DESC;"
+    data = fetch_data(query)
+    xml = dicttoxml(data, custom_root='Salaries', attr_type= True)
+    return Response(xml, mimetype='text/xml')
+
+@app.route('/api/v1.0/members', methods=['GET'])
+def members():
+    return render_template('team.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
