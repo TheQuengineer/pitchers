@@ -16,7 +16,7 @@ from xml.dom.minidom import parseString
 
 def fetch_data(query):
     config = {'user': 'root',
-        'password': 'Qbg157.8',
+        'password': 'MYwedin05!',
         'host': 'localhost',
         'database': 'Pitchers'}
     try:
@@ -83,7 +83,7 @@ def members():
 
 @app.route('/api/v1.0/genxml', methods=['GET'])
 def genxml():
-    query = "SELECT Rk as PitcherId, Name, FIP as Fip, 99.99 as FipStdDev, 2018_salary as Salary, 99.99 as SalaryStdDev, 99.99 as AdjustedScore FROM Pitchers.mlb_stats_2018;"
+    query = "SELECT ﻿Rk as PitcherId, Name, FIP as Fip, 2018_salary as Salary FROM `pitchers`.`mlb_stats_2018` limit 5;"
     data = fetch_data(query)
     df = pd.DataFrame(data)
 
