@@ -13,6 +13,8 @@ from mysql.connector import errorcode
 from dicttoxml import dicttoxml
 import pandas as pd
 from xml.dom.minidom import parseString
+import xml.etree.ElementTree as ET
+
 
 def fetch_data(query):
     config = {'user': 'root',
@@ -34,6 +36,42 @@ def fetch_data(query):
             print(err)
     else:
         cnx.close()
+
+
+def read_xml_as_dataframe(filename):
+    in_file = open(filename, "rb") # opening for [r]eading as [b]inary
+    xml_data = in_file.read() # if you only wanted to read 512 bytes, do .read(512)
+    in_file.close()
+    xml2df = XML2DataFrame(xml_data)
+    xml_dataframe=xml2df.process_data()
+    del xml_dataframe['Pitcher']
+    del xml_dataframe['PitcherId']
+    xml_dataframe['AdjustedScore'] = xml_dataframe.AdjustedScore.astype(float)
+    return xml_dataframe
+
+class XML2DataFrame:
+
+    def __init__(self, xml_data):
+        self.root = ET.XML(xml_data)
+
+    def parse_root(self, root):
+        return [self.parse_element(child) for child in iter(root)]
+
+    def parse_element(self, element, parsed=None):
+        if parsed is None:
+            parsed = dict()
+        for key in element.keys():
+            parsed[key] = element.attrib.get(key)
+        if element.text:
+            parsed[element.tag] = element.text
+        for child in list(element):
+            self.parse_element(child, parsed)
+        return parsed
+
+    def process_data(self):
+        structure_data = self.parse_root(self.root)
+        return pd.DataFrame(structure_data)
+
 
 
 
@@ -75,7 +113,12 @@ def salaries():
     query = "SELECT DISTINCT(Name), 2018_salary FROM mlb_stats_2018 WHERE 2018_salary > 0 ORDER BY 2018_salary DESC;"
     data = fetch_data(query)
     xml = dicttoxml(data, custom_root='Salaries', attr_type= True)
-    return Response(xml, mimetype='text/xml')
+    xml2df = XML2DataFrame(xml)
+    xml_dataframe= xml2df.process_data()
+    xml_dataframe = xml_dataframe.iloc[:,0:2]
+    xml_dataframe.columns  = ["Name", "Salary"]
+
+    return render_template('salaries.html',tables=[xml_dataframe.to_html(index=False)],titles = ['na', 'Pitcher Salaries Highest to Lowest'])
 
 @app.route('/api/v1.0/members', methods=['GET'])
 def members():
@@ -113,6 +156,20 @@ def genxml():
 
     #Write response XML back to the screen
     return Response(xml, mimetype='text/xml')
+
+@app.route('/api/v1.0/calctopten', methods=['GET'])
+def calctopten():
+    xml_dataframe = read_xml_as_dataframe('data/RankedPitchers.xml')
+    xml_dataframe=xml_dataframe.nlargest(10, 'AdjustedScore')
+    return render_template('topten.html',tables=[xml_dataframe.to_html(index=False)],titles = ['na', 'Top Ten Pitchers Most Worth Their Salary'])
+
+
+@app.route('/api/v1.0/calcbottomten', methods=['GET'])
+def calcbottomten():
+    xml_dataframe = read_xml_as_dataframe('data/RankedPitchers.xml')
+    xml_dataframe=xml_dataframe.nsmallest(10, 'AdjustedScore')
+    return render_template('bottomten.html',tables=[xml_dataframe.to_html(index=False)],titles = ['na', 'Top Ten Pitchers Least Worth Their Salary'])
+
 
 if __name__ == '__main__':
     app.run(debug=True)

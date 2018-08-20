@@ -8,11 +8,12 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>MSDS 7330  Pitcher Data Project</title>
+    <title>Top Ten Valuable Pitchers</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 
   </head>
 
@@ -28,7 +29,7 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="#">Home
+              <a class="nav-link" href="/">Home
                 <span class="sr-only">(current)</span>
               </a>
             </li>
@@ -49,22 +50,21 @@
     <!-- Page Content -->
     <div class="container">
       <div class="row">
-        <div class="col-lg-12 text-center">
-          <h1 class="mt-5">MLB Pitcher Database XML Service</h1>
-          <p class="lead">MLB 2018 Statistics</p>
-          <ul class="list-unstyled">
-            <li><a href="/api/v1.0/genxml">Rank Pitchers<a/></li>
-            <li><a href="/api/v1.0/salaries">Pitcher Salaries<a/></li>
-            <li><a href="/api/v1.0/calctopten">Top Ten Pitchers<a/></li>
-            <li><a href="/api/v1.0/calcbottomten">Bottom Ten Pitchers<a/></li>
-          </ul>
+        <div class="col-lg-12 text-center page">
+          <h1 class="mt-5">Pitcher Data</h1>
+          <center>
+            {% for table in tables %}
+                <h2>{{titles[loop.index]}}</h2>
+                {{ table|safe }}
+            {% endfor %}
+        </center>
         </div>
       </div>
     </div>
 
     <!-- Bootstrap core JavaScript -->
-    <script src="static/jquery/jquery.min.js"></script>
-    <script src="static/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/jquery/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   </body>
 
