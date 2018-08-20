@@ -1,0 +1,16 @@
+name: pitchers
+dependencies:
+  - python>=3.6
+  - numpy
+  - matplotlib
+  - pandas
+  - requests
+  - flask
+  - mysql-connector-python
+  - cython
+  - pip
+  - pip:
+    - dicttoxml
+    - jupyter
+    - xlrd
+    - sqlalchemy
